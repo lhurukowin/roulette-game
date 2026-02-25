@@ -2,27 +2,38 @@
 
 let isPlaying = false;
 
-// 🎯 Random vị trí viên đạn 1 lần duy nhất khi load
-let bulletPosition = Math.floor(Math.random() * 6);
-let currentChamber = 0;
-
-// 🔊 Âm thanh
+// 🔊 Audio nội bộ
 const bangSound = new Audio("./bang.mp3");
 const clickSound = new Audio("./click.mp3");
 
 bangSound.preload = "auto";
 clickSound.preload = "auto";
 
-// Unlock audio cho browser
-document.addEventListener("click", function unlock() {
-    bangSound.play().then(() => bangSound.pause()).catch(()=>{});
-    clickSound.play().then(() => clickSound.pause()).catch(()=>{});
-    document.removeEventListener("click", unlock);
-});
+let audioUnlocked = false;
 
-document.getElementById("triggerBtn").addEventListener("click", pullTrigger);
+function unlockAudio() {
+  if (audioUnlocked) return;
 
-function pullTrigger(){
+  bangSound.play().then(() => {
+    bangSound.pause();
+    bangSound.currentTime = 0;
+  }).catch(()=>{});
+
+  clickSound.play().then(() => {
+    clickSound.pause();
+    clickSound.currentTime = 0;
+  }).catch(()=>{});
+
+  audioUnlocked = true;
+}
+
+// 🎯 Random 1 viên duy nhất
+let bulletPosition = Math.floor(Math.random() * 6);
+let currentChamber = 0;
+
+document.getElementById("triggerBtn").addEventListener("click", function() {
+
+  unlockAudio(); // 🔓 đảm bảo audio được unlock
 
   if(isPlaying) return;
   isPlaying = true;
@@ -36,28 +47,26 @@ function pullTrigger(){
 
     if(currentChamber === bulletPosition){
 
-      // 💥 TRÚNG ĐẠN
       result.innerText = "💥 BANG!";
       result.style.color = "red";
       document.body.style.background = "#550000";
 
       bangSound.currentTime = 0;
-      bangSound.play().catch(()=>{});
+      bangSound.play();
 
-      // 🔄 Reset về súng mới
+      // reset súng mới
       bulletPosition = Math.floor(Math.random() * 6);
       currentChamber = 0;
 
     } else {
 
-      // 😮‍💨 HỤT
       result.innerText = "😮‍💨 Click...";
       result.style.color = "lightgreen";
 
       clickSound.currentTime = 0;
-      clickSound.play().catch(()=>{});
+      clickSound.play();
 
-      currentChamber++; // quay sang nòng tiếp theo
+      currentChamber++;
     }
 
     setTimeout(()=>{
@@ -68,6 +77,7 @@ function pullTrigger(){
     },1200);
 
   },300);
-}
+
+});
 
 </script>
