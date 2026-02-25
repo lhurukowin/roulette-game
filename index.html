@@ -40,11 +40,6 @@ button{
   cursor:pointer;
   background:red;
   color:white;
-  transition:0.2s;
-}
-
-button:hover{
-  background:#cc0000;
 }
 
 button:disabled{
@@ -58,16 +53,13 @@ button:disabled{
   height:40px;
 }
 </style>
-
 </head>
+
 <body>
 
 <div class="container">
   <h1>🎯 Russian Roulette</h1>
-
-  <!-- Súng emoji -->
   <div id="gun" class="gun">🔫</div>
-
   <button id="triggerBtn" onclick="pullTrigger()">BÓP CÒ</button>
   <div class="result" id="result"></div>
 </div>
@@ -75,6 +67,8 @@ button:disabled{
 <script>
 
 let isPlaying = false;
+let bulletPosition;
+let currentChamber;
 
 // 🔫 Âm thanh
 const bangSound = new Audio("bang.mp3");
@@ -82,6 +76,14 @@ const clickSound = new Audio("click.mp3");
 
 bangSound.preload = "auto";
 clickSound.preload = "auto";
+
+// 🎯 Reset súng
+function resetGun(){
+  bulletPosition = Math.floor(Math.random() * 6); // 0-5
+  currentChamber = 0;
+}
+
+resetGun();
 
 function pullTrigger(){
 
@@ -92,17 +94,14 @@ function pullTrigger(){
   const result = document.getElementById("result");
   const btn = document.getElementById("triggerBtn");
 
-  result.innerText = "";
   btn.disabled = true;
-
   gun.classList.add("spin");
 
   setTimeout(()=>{
 
-    let shot = Math.floor(Math.random()*6) + 1;
+    if(currentChamber === bulletPosition){
 
-    if(shot === 1){
-
+      // 💥 NỔ
       result.innerText = "💥 BANG! Bạn đã trúng đạn!";
       result.style.color = "red";
       document.body.style.background = "#550000";
@@ -113,25 +112,36 @@ function pullTrigger(){
       gun.classList.remove("spin");
       gun.classList.add("recoil");
 
-    }else{
+      // 🔄 Reset sau khi nổ
+      setTimeout(()=>{
+        document.body.style.background = "#111";
+        result.innerText = "";
+        gun.classList.remove("recoil");
+        btn.disabled = false;
+        isPlaying = false;
+        resetGun();
+      },2000);
 
-      result.innerText = "😮‍💨 Click... Bạn sống.";
+    } else {
+
+      // 😮‍💨 Không nổ
+      result.innerText = "😮‍💨 Click...";
       result.style.color = "lightgreen";
 
       clickSound.currentTime = 0;
       clickSound.play().catch(()=>{});
+
+      currentChamber++;
+
+      setTimeout(()=>{
+        result.innerText = "";
+        gun.classList.remove("spin");
+        btn.disabled = false;
+        isPlaying = false;
+      },1000);
     }
 
-    setTimeout(()=>{
-      document.body.style.background = "#111";
-      result.innerText = "";
-      gun.classList.remove("spin");
-      gun.classList.remove("recoil");
-      btn.disabled = false;
-      isPlaying = false;
-    },2000);
-
-  },800);
+  },600);
 }
 
 </script>
