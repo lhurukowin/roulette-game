@@ -19,15 +19,6 @@ body{
   margin-top:60px;
 }
 
-.gun{
-  font-size:120px;
-  transition:transform 0.6s ease;
-}
-
-.spin{
-  transform:rotate(720deg);
-}
-
 button{
   padding:15px 40px;
   font-size:20px;
@@ -50,8 +41,6 @@ button{
 
 <div class="container">
   <h1>🎯 Russian Roulette</h1>
-  <div id="gun" class="gun">🔫</div>
-  <br>
   <button id="triggerBtn">BÓP CÒ</button>
   <div class="result" id="result"></div>
 </div>
@@ -59,46 +48,17 @@ button{
 <script>
 
 let isPlaying = false;
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-function playClick(){
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
+// 🔫 Random 1 viên duy nhất
+let bulletPosition = Math.floor(Math.random() * 6);
+let currentChamber = 0;
 
-  osc.type = "square";
-  osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+// 🔊 Âm thanh nội bộ
+const bangSound = new Audio("bang.mp3");
+const clickSound = new Audio("click.mp3");
 
-  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.1);
-}
-
-function playBang(){
-  const bufferSize = audioCtx.sampleRate * 0.3;
-  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-  const data = buffer.getChannelData(0);
-
-  for (let i = 0; i < bufferSize; i++) {
-    data[i] = Math.random() * 2 - 1;
-  }
-
-  const noise = audioCtx.createBufferSource();
-  noise.buffer = buffer;
-
-  const gain = audioCtx.createGain();
-  gain.gain.setValueAtTime(1, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-
-  noise.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  noise.start();
-}
+bangSound.preload = "auto";
+clickSound.preload = "auto";
 
 document.getElementById("triggerBtn").addEventListener("click", pullTrigger);
 
@@ -107,41 +67,45 @@ function pullTrigger(){
   if(isPlaying) return;
   isPlaying = true;
 
-  const gun = document.getElementById("gun");
   const result = document.getElementById("result");
   const btn = document.getElementById("triggerBtn");
 
   btn.disabled = true;
-  result.innerText = "";
-  gun.classList.add("spin");
 
   setTimeout(()=>{
 
-    let shot = Math.floor(Math.random()*6) + 1;
-
-    if(shot === 1){
+    if(currentChamber === bulletPosition){
 
       result.innerText = "💥 BANG!";
       result.style.color = "red";
       document.body.style.background = "#550000";
-      playBang();
+
+      bangSound.currentTime = 0;
+      bangSound.play().catch(()=>{});
+
+      // 🔄 reset vòng mới
+      bulletPosition = Math.floor(Math.random() * 6);
+      currentChamber = 0;
 
     } else {
 
       result.innerText = "😮‍💨 Click...";
       result.style.color = "lightgreen";
-      playClick();
+
+      clickSound.currentTime = 0;
+      clickSound.play().catch(()=>{});
+
+      currentChamber++;
     }
 
     setTimeout(()=>{
       document.body.style.background = "#111";
       result.innerText = "";
-      gun.classList.remove("spin");
       btn.disabled = false;
       isPlaying = false;
-    },2000);
+    },1500);
 
-  },600);
+  },400);
 }
 
 </script>
