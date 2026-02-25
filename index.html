@@ -2,38 +2,18 @@
 
 let isPlaying = false;
 
-// 🔊 Audio nội bộ
+// 🔊 dùng file nội bộ
 const bangSound = new Audio("./bang.mp3");
 const clickSound = new Audio("./click.mp3");
 
 bangSound.preload = "auto";
 clickSound.preload = "auto";
 
-let audioUnlocked = false;
-
-function unlockAudio() {
-  if (audioUnlocked) return;
-
-  bangSound.play().then(() => {
-    bangSound.pause();
-    bangSound.currentTime = 0;
-  }).catch(()=>{});
-
-  clickSound.play().then(() => {
-    clickSound.pause();
-    clickSound.currentTime = 0;
-  }).catch(()=>{});
-
-  audioUnlocked = true;
-}
-
-// 🎯 Random 1 viên duy nhất
+// random 1 viên
 let bulletPosition = Math.floor(Math.random() * 6);
 let currentChamber = 0;
 
-document.getElementById("triggerBtn").addEventListener("click", function() {
-
-  unlockAudio(); // 🔓 đảm bảo audio được unlock
+document.getElementById("triggerBtn").addEventListener("click", function(){
 
   if(isPlaying) return;
   isPlaying = true;
@@ -54,7 +34,7 @@ document.getElementById("triggerBtn").addEventListener("click", function() {
       bangSound.currentTime = 0;
       bangSound.play();
 
-      // reset súng mới
+      // reset khi nổ
       bulletPosition = Math.floor(Math.random() * 6);
       currentChamber = 0;
 
