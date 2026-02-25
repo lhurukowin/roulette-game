@@ -3,102 +3,122 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Russian Roulette Simulator</title>
-
+<title>Liar's Gun Mini Game</title>
 <style>
 body{
-  margin:0;
-  background:#111;
-  color:white;
-  font-family:Arial, sans-serif;
-  text-align:center;
+    background:#111;
+    color:white;
+    font-family:Arial, sans-serif;
+    text-align:center;
+    padding-top:50px;
 }
 
-.container{
-  margin-top:50px;
+h1{
+    margin-bottom:20px;
 }
 
-.gun{
-  font-size:120px;
-  transition:transform 0.5s ease;
+.gun-container{
+    margin:30px auto;
+    width:200px;
+    height:200px;
+    border-radius:50%;
+    border:8px solid #444;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    transition: transform 0.3s ease;
 }
 
-.spin{
-  transform:rotate(360deg);
+.bullet{
+    width:25px;
+    height:25px;
+    border-radius:50%;
+    background:gray;
 }
 
 button{
-  padding:15px 40px;
-  font-size:20px;
-  margin-top:30px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  background:red;
-  color:white;
+    padding:12px 25px;
+    font-size:18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    margin:10px;
 }
 
-button:disabled{
-  background:gray;
-  cursor:not-allowed;
+.shoot{
+    background:red;
+    color:white;
+}
+
+.reset{
+    background:#555;
+    color:white;
 }
 
 .result{
-  font-size:30px;
-  margin-top:30px;
-  height:40px;
+    font-size:22px;
+    margin-top:20px;
+    min-height:30px;
 }
 </style>
-
 </head>
 <body>
 
-<div class="container">
-  <h1>🎯 Russian Roulette</h1>
-  <div id="gun" class="gun">🔫</div>
-  <br>
-  <button id="triggerBtn" onclick="pullTrigger()">BÓP CÒ</button>
-  <div class="result" id="result"></div>
+<h1>🔫 Liar's Gun</h1>
+
+<div class="gun-container" id="gun">
+    <div class="bullet" id="bullet"></div>
 </div>
 
+<button class="shoot" onclick="shoot()">Bóp Cò</button>
+<button class="reset" onclick="resetGame()">Reset</button>
+
+<div class="result" id="result"></div>
+
 <script>
+let chamber = [];
+let currentIndex = 0;
+let gameOver = false;
 
-let isPlaying = false;
-
-function pullTrigger(){
-  if(isPlaying) return;
-  isPlaying = true;
-
-  const gun = document.getElementById("gun");
-  const result = document.getElementById("result");
-  const btn = document.getElementById("triggerBtn");
-
-  result.innerText = "";
-  btn.disabled = true;
-
-  gun.classList.add("spin");
-
-  setTimeout(()=>{
-    let shot = Math.floor(Math.random()*6) + 1;
-
-    if(shot === 1){
-      result.innerText = "💥 BANG! Bạn đã trúng đạn!";
-      result.style.color = "red";
-    }else{
-      result.innerText = "😮‍💨 Click... Bạn sống.";
-      result.style.color = "lightgreen";
+function initGun(){
+    chamber = [];
+    for(let i=0;i<6;i++){
+        chamber.push(0);
     }
-
-    setTimeout(()=>{
-      result.innerText = "";
-      gun.classList.remove("spin");
-      btn.disabled = false;
-      isPlaying = false;
-    },2000);
-
-  },800);
+    let randomBullet = Math.floor(Math.random()*6);
+    chamber[randomBullet] = 1;
+    currentIndex = 0;
+    gameOver = false;
+    document.getElementById("result").innerText = "";
 }
 
+function shoot(){
+    if(gameOver) return;
+
+    const gun = document.getElementById("gun");
+    gun.style.transform = "rotate(" + (currentIndex*60) + "deg)";
+
+    if(chamber[currentIndex] === 1){
+        document.getElementById("result").innerText = "💥 BÙM! Bạn đã trúng đạn!";
+        gun.style.borderColor = "red";
+        gameOver = true;
+    } else {
+        document.getElementById("result").innerText = "😮 Không có đạn... Bạn sống!";
+        currentIndex++;
+        if(currentIndex >= 6){
+            document.getElementById("result").innerText = "😎 Hết đạn! Bạn thắng!";
+            gameOver = true;
+        }
+    }
+}
+
+function resetGame(){
+    document.getElementById("gun").style.borderColor = "#444";
+    initGun();
+}
+
+initGun();
 </script>
 
 </body>
