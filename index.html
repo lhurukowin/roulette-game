@@ -5,9 +5,11 @@
   <h1>🎯 Russian Roulette</h1>
 
   <!-- Hình súng -->
-  <img src="https://cdn-icons-png.flaticon.com/512/3132/3132693.png"
-       id="gunImg"
-       class="gun"/>
+  <img 
+    src="https://i.pinimg.com/736x/b9/1b/36/b91b368ed3c624d9c3d7379a3b3754ee.jpg"
+    id="gunImg"
+    class="gun"
+  />
 
   <button id="triggerBtn">BÓP CÒ</button>
   <div class="result" id="result"></div>
@@ -33,8 +35,9 @@ h1{
 }
 
 .gun{
-  width:140px;
-  margin:20px 0;
+  width:220px;              /* chỉnh kích thước tại đây */
+  margin:25px 0;
+  object-fit:contain;
   transition: transform 0.15s;
 }
 
@@ -60,7 +63,7 @@ button:hover{
 }
 
 .recoil{
-  transform: translateY(-10px);
+  transform: translateY(-12px);
 }
 </style>
 
