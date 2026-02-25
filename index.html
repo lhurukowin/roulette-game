@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Russian Roulette Simulator</title>
+
+<style>
+body{
+  margin:0;
+  background:#111;
+  color:white;
+  font-family:Arial, sans-serif;
+  text-align:center;
+}
+
+.container{
+  margin-top:50px;
+}
+
+.gun{
+  font-size:120px;
+  transition:transform 0.5s ease;
+}
+
+.spin{
+  transform:rotate(360deg);
+}
+
+button{
+  padding:15px 40px;
+  font-size:20px;
+  margin-top:30px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  background:red;
+  color:white;
+}
+
+button:disabled{
+  background:gray;
+  cursor:not-allowed;
+}
+
+.result{
+  font-size:30px;
+  margin-top:30px;
+  height:40px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+  <h1>🎯 Russian Roulette</h1>
+  <div id="gun" class="gun">🔫</div>
+  <br>
+  <button id="triggerBtn" onclick="pullTrigger()">BÓP CÒ</button>
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+
+let isPlaying = false;
+
+function pullTrigger(){
+  if(isPlaying) return;
+  isPlaying = true;
+
+  const gun = document.getElementById("gun");
+  const result = document.getElementById("result");
+  const btn = document.getElementById("triggerBtn");
+
+  result.innerText = "";
+  btn.disabled = true;
+
+  gun.classList.add("spin");
+
+  setTimeout(()=>{
+    let shot = Math.floor(Math.random()*6) + 1;
+
+    if(shot === 1){
+      result.innerText = "💥 BANG! Bạn đã trúng đạn!";
+      result.style.color = "red";
+    }else{
+      result.innerText = "😮‍💨 Click... Bạn sống.";
+      result.style.color = "lightgreen";
+    }
+
+    setTimeout(()=>{
+      result.innerText = "";
+      gun.classList.remove("spin");
+      btn.disabled = false;
+      isPlaying = false;
+    },2000);
+
+  },800);
+}
+
+</script>
+
+</body>
+</html>
