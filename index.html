@@ -1,54 +1,45 @@
-<body>
-
-<div class="container">
-
-  <h1>🎯 Russian Roulette</h1>
-
-  <!-- Hình súng -->
-  <img 
-    src="https://i.pinimg.com/736x/b9/1b/36/b91b368ed3c624d9c3d7379a3b3754ee.jpg"
-    id="gunImg"
-    class="gun"
-  />
-
-  <button id="triggerBtn">BÓP CÒ</button>
-  <div class="result" id="result"></div>
-
-</div>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Russian Roulette Simulator</title>
 
 <style>
 body{
   margin:0;
-  background:#0d0d0d;
+  background:#111;
   color:white;
   font-family:Arial, sans-serif;
   text-align:center;
 }
 
 .container{
-  margin-top:80px;
-}
-
-h1{
-  font-size:32px;
-  margin-bottom:30px;
+  margin-top:60px;
 }
 
 .gun{
-  width:220px;              /* chỉnh kích thước tại đây */
-  margin:25px 0;
-  object-fit:contain;
-  transition: transform 0.15s;
+  font-size:120px;
+  transition:transform 0.6s ease;
+}
+
+.spin{
+  transform:rotate(360deg);
+}
+
+.recoil{
+  transform:translateY(-15px);
 }
 
 button{
-  padding:15px 45px;
+  padding:15px 40px;
   font-size:20px;
+  margin-top:30px;
   border:none;
-  border-radius:12px;
-  background:#ff1a1a;
-  color:white;
+  border-radius:10px;
   cursor:pointer;
+  background:red;
+  color:white;
   transition:0.2s;
 }
 
@@ -56,78 +47,94 @@ button:hover{
   background:#cc0000;
 }
 
+button:disabled{
+  background:gray;
+  cursor:not-allowed;
+}
+
 .result{
-  font-size:28px;
+  font-size:30px;
   margin-top:30px;
   height:40px;
 }
-
-.recoil{
-  transform: translateY(-12px);
-}
 </style>
+
+</head>
+<body>
+
+<div class="container">
+  <h1>🎯 Russian Roulette</h1>
+
+  <!-- Súng emoji -->
+  <div id="gun" class="gun">🔫</div>
+
+  <button id="triggerBtn" onclick="pullTrigger()">BÓP CÒ</button>
+  <div class="result" id="result"></div>
+</div>
 
 <script>
 
 let isPlaying = false;
-let bulletPosition = Math.floor(Math.random() * 6);
-let currentChamber = 0;
 
+// 🔫 Âm thanh
 const bangSound = new Audio("bang.mp3");
 const clickSound = new Audio("click.mp3");
 
-const gun = document.getElementById("gunImg");
-
-document.getElementById("triggerBtn").addEventListener("click", pullTrigger);
+bangSound.preload = "auto";
+clickSound.preload = "auto";
 
 function pullTrigger(){
 
   if(isPlaying) return;
   isPlaying = true;
 
+  const gun = document.getElementById("gun");
   const result = document.getElementById("result");
   const btn = document.getElementById("triggerBtn");
 
+  result.innerText = "";
   btn.disabled = true;
 
-  gun.classList.add("recoil");
+  gun.classList.add("spin");
 
   setTimeout(()=>{
 
-    if(currentChamber === bulletPosition){
+    let shot = Math.floor(Math.random()*6) + 1;
 
-      result.innerText = "💥 BANG!";
+    if(shot === 1){
+
+      result.innerText = "💥 BANG! Bạn đã trúng đạn!";
       result.style.color = "red";
       document.body.style.background = "#550000";
 
       bangSound.currentTime = 0;
       bangSound.play().catch(()=>{});
 
-      bulletPosition = Math.floor(Math.random() * 6);
-      currentChamber = 0;
+      gun.classList.remove("spin");
+      gun.classList.add("recoil");
 
-    } else {
+    }else{
 
-      result.innerText = "😮‍💨 Click...";
+      result.innerText = "😮‍💨 Click... Bạn sống.";
       result.style.color = "lightgreen";
 
       clickSound.currentTime = 0;
       clickSound.play().catch(()=>{});
-
-      currentChamber++;
     }
 
     setTimeout(()=>{
-      document.body.style.background = "#0d0d0d";
+      document.body.style.background = "#111";
       result.innerText = "";
-      btn.disabled = false;
+      gun.classList.remove("spin");
       gun.classList.remove("recoil");
+      btn.disabled = false;
       isPlaying = false;
-    },1500);
+    },2000);
 
-  },200);
+  },800);
 }
 
 </script>
 
 </body>
+</html>
