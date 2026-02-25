@@ -1,64 +1,24 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Russian Roulette</title>
-
-<style>
-body{
-  margin:0;
-  background:#111;
-  color:white;
-  font-family:Arial;
-  text-align:center;
-  transition:0.2s;
-}
-
-.container{
-  margin-top:60px;
-}
-
-button{
-  padding:15px 40px;
-  font-size:20px;
-  margin-top:30px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  background:red;
-  color:white;
-}
-
-.result{
-  font-size:30px;
-  margin-top:30px;
-  height:40px;
-}
-</style>
-</head>
-<body>
-
-<div class="container">
-  <h1>🎯 Russian Roulette</h1>
-  <button id="triggerBtn">BÓP CÒ</button>
-  <div class="result" id="result"></div>
-</div>
-
 <script>
 
 let isPlaying = false;
 
-// 🔫 Random 1 viên duy nhất
+// 🎯 Random vị trí viên đạn 1 lần duy nhất khi load
 let bulletPosition = Math.floor(Math.random() * 6);
 let currentChamber = 0;
 
-// 🔊 Âm thanh nội bộ
-const bangSound = new Audio("bang.mp3");
-const clickSound = new Audio("click.mp3");
+// 🔊 Âm thanh
+const bangSound = new Audio("./bang.mp3");
+const clickSound = new Audio("./click.mp3");
 
 bangSound.preload = "auto";
 clickSound.preload = "auto";
+
+// Unlock audio cho browser
+document.addEventListener("click", function unlock() {
+    bangSound.play().then(() => bangSound.pause()).catch(()=>{});
+    clickSound.play().then(() => clickSound.pause()).catch(()=>{});
+    document.removeEventListener("click", unlock);
+});
 
 document.getElementById("triggerBtn").addEventListener("click", pullTrigger);
 
@@ -76,6 +36,7 @@ function pullTrigger(){
 
     if(currentChamber === bulletPosition){
 
+      // 💥 TRÚNG ĐẠN
       result.innerText = "💥 BANG!";
       result.style.color = "red";
       document.body.style.background = "#550000";
@@ -83,19 +44,20 @@ function pullTrigger(){
       bangSound.currentTime = 0;
       bangSound.play().catch(()=>{});
 
-      // 🔄 reset vòng mới
+      // 🔄 Reset về súng mới
       bulletPosition = Math.floor(Math.random() * 6);
       currentChamber = 0;
 
     } else {
 
+      // 😮‍💨 HỤT
       result.innerText = "😮‍💨 Click...";
       result.style.color = "lightgreen";
 
       clickSound.currentTime = 0;
       clickSound.play().catch(()=>{});
 
-      currentChamber++;
+      currentChamber++; // quay sang nòng tiếp theo
     }
 
     setTimeout(()=>{
@@ -103,12 +65,9 @@ function pullTrigger(){
       result.innerText = "";
       btn.disabled = false;
       isPlaying = false;
-    },1500);
+    },1200);
 
-  },400);
+  },300);
 }
 
 </script>
-
-</body>
-</html>
