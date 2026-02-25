@@ -1,47 +1,66 @@
 <body>
 
 <div class="container">
+
   <h1>🎯 Russian Roulette</h1>
 
-  <div class="gun-wrapper">
-    <div class="chamber" id="chamber"></div>
-  </div>
+  <!-- Hình súng -->
+  <img src="https://cdn-icons-png.flaticon.com/512/3132/3132693.png"
+       id="gunImg"
+       class="gun"/>
 
   <button id="triggerBtn">BÓP CÒ</button>
   <div class="result" id="result"></div>
+
 </div>
 
 <style>
-.gun-wrapper{
-  margin:30px auto;
-  width:220px;
-  height:220px;
-  border-radius:50%;
-  border:8px solid #444;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition: transform 0.4s ease;
-  background: radial-gradient(circle,#333 40%,#111 70%);
+body{
+  margin:0;
+  background:#0d0d0d;
+  color:white;
+  font-family:Arial, sans-serif;
+  text-align:center;
 }
 
-.chamber{
-  width:40px;
+.container{
+  margin-top:80px;
+}
+
+h1{
+  font-size:32px;
+  margin-bottom:30px;
+}
+
+.gun{
+  width:140px;
+  margin:20px 0;
+  transition: transform 0.15s;
+}
+
+button{
+  padding:15px 45px;
+  font-size:20px;
+  border:none;
+  border-radius:12px;
+  background:#ff1a1a;
+  color:white;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+button:hover{
+  background:#cc0000;
+}
+
+.result{
+  font-size:28px;
+  margin-top:30px;
   height:40px;
-  border-radius:50%;
-  background:#888;
 }
 
-.shake{
-  animation: shake 0.3s;
-}
-
-@keyframes shake{
-  0%{ transform:translateX(0); }
-  25%{ transform:translateX(-8px); }
-  50%{ transform:translateX(8px); }
-  75%{ transform:translateX(-8px); }
-  100%{ transform:translateX(0); }
+.recoil{
+  transform: translateY(-10px);
 }
 </style>
 
@@ -54,8 +73,7 @@ let currentChamber = 0;
 const bangSound = new Audio("bang.mp3");
 const clickSound = new Audio("click.mp3");
 
-const chamberUI = document.getElementById("chamber");
-const wrapper = document.querySelector(".gun-wrapper");
+const gun = document.getElementById("gunImg");
 
 document.getElementById("triggerBtn").addEventListener("click", pullTrigger);
 
@@ -69,7 +87,7 @@ function pullTrigger(){
 
   btn.disabled = true;
 
-  wrapper.style.transform = "rotate(" + (currentChamber * 60) + "deg)";
+  gun.classList.add("recoil");
 
   setTimeout(()=>{
 
@@ -78,8 +96,6 @@ function pullTrigger(){
       result.innerText = "💥 BANG!";
       result.style.color = "red";
       document.body.style.background = "#550000";
-
-      wrapper.classList.add("shake");
 
       bangSound.currentTime = 0;
       bangSound.play().catch(()=>{});
@@ -99,15 +115,16 @@ function pullTrigger(){
     }
 
     setTimeout(()=>{
-      document.body.style.background = "#111";
+      document.body.style.background = "#0d0d0d";
       result.innerText = "";
       btn.disabled = false;
+      gun.classList.remove("recoil");
       isPlaying = false;
-      wrapper.classList.remove("shake");
     },1500);
 
-  },400);
+  },200);
 }
+
 </script>
 
 </body>
