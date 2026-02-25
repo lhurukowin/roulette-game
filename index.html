@@ -1,125 +1,113 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Liar's Gun Mini Game</title>
-<style>
-body{
-    background:#111;
-    color:white;
-    font-family:Arial, sans-serif;
-    text-align:center;
-    padding-top:50px;
-}
-
-h1{
-    margin-bottom:20px;
-}
-
-.gun-container{
-    margin:30px auto;
-    width:200px;
-    height:200px;
-    border-radius:50%;
-    border:8px solid #444;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    position:relative;
-    transition: transform 0.3s ease;
-}
-
-.bullet{
-    width:25px;
-    height:25px;
-    border-radius:50%;
-    background:gray;
-}
-
-button{
-    padding:12px 25px;
-    font-size:18px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    margin:10px;
-}
-
-.shoot{
-    background:red;
-    color:white;
-}
-
-.reset{
-    background:#555;
-    color:white;
-}
-
-.result{
-    font-size:22px;
-    margin-top:20px;
-    min-height:30px;
-}
-</style>
-</head>
 <body>
 
-<h1>🔫 Liar's Gun</h1>
+<div class="container">
+  <h1>🎯 Russian Roulette</h1>
 
-<div class="gun-container" id="gun">
-    <div class="bullet" id="bullet"></div>
+  <div class="gun-wrapper">
+    <div class="chamber" id="chamber"></div>
+  </div>
+
+  <button id="triggerBtn">BÓP CÒ</button>
+  <div class="result" id="result"></div>
 </div>
 
-<button class="shoot" onclick="shoot()">Bóp Cò</button>
-<button class="reset" onclick="resetGame()">Reset</button>
+<style>
+.gun-wrapper{
+  margin:30px auto;
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  border:8px solid #444;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: transform 0.4s ease;
+  background: radial-gradient(circle,#333 40%,#111 70%);
+}
 
-<div class="result" id="result"></div>
+.chamber{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:#888;
+}
+
+.shake{
+  animation: shake 0.3s;
+}
+
+@keyframes shake{
+  0%{ transform:translateX(0); }
+  25%{ transform:translateX(-8px); }
+  50%{ transform:translateX(8px); }
+  75%{ transform:translateX(-8px); }
+  100%{ transform:translateX(0); }
+}
+</style>
 
 <script>
-let chamber = [];
-let currentIndex = 0;
-let gameOver = false;
 
-function initGun(){
-    chamber = [];
-    for(let i=0;i<6;i++){
-        chamber.push(0);
-    }
-    let randomBullet = Math.floor(Math.random()*6);
-    chamber[randomBullet] = 1;
-    currentIndex = 0;
-    gameOver = false;
-    document.getElementById("result").innerText = "";
-}
+let isPlaying = false;
+let bulletPosition = Math.floor(Math.random() * 6);
+let currentChamber = 0;
 
-function shoot(){
-    if(gameOver) return;
+const bangSound = new Audio("bang.mp3");
+const clickSound = new Audio("click.mp3");
 
-    const gun = document.getElementById("gun");
-    gun.style.transform = "rotate(" + (currentIndex*60) + "deg)";
+const chamberUI = document.getElementById("chamber");
+const wrapper = document.querySelector(".gun-wrapper");
 
-    if(chamber[currentIndex] === 1){
-        document.getElementById("result").innerText = "💥 BÙM! Bạn đã trúng đạn!";
-        gun.style.borderColor = "red";
-        gameOver = true;
+document.getElementById("triggerBtn").addEventListener("click", pullTrigger);
+
+function pullTrigger(){
+
+  if(isPlaying) return;
+  isPlaying = true;
+
+  const result = document.getElementById("result");
+  const btn = document.getElementById("triggerBtn");
+
+  btn.disabled = true;
+
+  wrapper.style.transform = "rotate(" + (currentChamber * 60) + "deg)";
+
+  setTimeout(()=>{
+
+    if(currentChamber === bulletPosition){
+
+      result.innerText = "💥 BANG!";
+      result.style.color = "red";
+      document.body.style.background = "#550000";
+
+      wrapper.classList.add("shake");
+
+      bangSound.currentTime = 0;
+      bangSound.play().catch(()=>{});
+
+      bulletPosition = Math.floor(Math.random() * 6);
+      currentChamber = 0;
+
     } else {
-        document.getElementById("result").innerText = "😮 Không có đạn... Bạn sống!";
-        currentIndex++;
-        if(currentIndex >= 6){
-            document.getElementById("result").innerText = "😎 Hết đạn! Bạn thắng!";
-            gameOver = true;
-        }
+
+      result.innerText = "😮‍💨 Click...";
+      result.style.color = "lightgreen";
+
+      clickSound.currentTime = 0;
+      clickSound.play().catch(()=>{});
+
+      currentChamber++;
     }
-}
 
-function resetGame(){
-    document.getElementById("gun").style.borderColor = "#444";
-    initGun();
-}
+    setTimeout(()=>{
+      document.body.style.background = "#111";
+      result.innerText = "";
+      btn.disabled = false;
+      isPlaying = false;
+      wrapper.classList.remove("shake");
+    },1500);
 
-initGun();
+  },400);
+}
 </script>
 
 </body>
-</html>
