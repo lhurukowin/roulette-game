@@ -12,6 +12,7 @@ body{
   color:white;
   font-family:Arial, sans-serif;
   text-align:center;
+  transition:0.2s;
 }
 
 .container{
@@ -40,7 +41,6 @@ button{
 
 button:disabled{
   background:gray;
-  cursor:not-allowed;
 }
 
 .result{
@@ -50,15 +50,9 @@ button:disabled{
 }
 
 .flash{
-  animation: flashBg 0.2s alternate 4;
-}
-
-@keyframes flashBg{
-  from { background:#111; }
-  to { background:#550000; }
+  background:#550000 !important;
 }
 </style>
-
 </head>
 <body>
 
@@ -66,17 +60,22 @@ button:disabled{
   <h1>🎯 Russian Roulette</h1>
   <div id="gun" class="gun">🔫</div>
   <br>
-  <button id="triggerBtn" onclick="pullTrigger()">BÓP CÒ</button>
+  <button id="triggerBtn">BÓP CÒ</button>
   <div class="result" id="result"></div>
 </div>
-
-<!-- Âm thanh -->
-<audio id="bangSound" src="https://assets.mixkit.co/sfx/preview/mixkit-gun-shot-1673.mp3"></audio>
-<audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-metal-click-1104.mp3"></audio>
 
 <script>
 
 let isPlaying = false;
+
+// Tạo audio bằng JS để tránh lỗi
+const bangSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_5a0a6db3df.mp3?filename=gunshot-14063.mp3");
+const clickSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_9b1b8d89a0.mp3?filename=gun-cock-14065.mp3");
+
+bangSound.preload = "auto";
+clickSound.preload = "auto";
+
+document.getElementById("triggerBtn").addEventListener("click", pullTrigger);
 
 function pullTrigger(){
   if(isPlaying) return;
@@ -85,8 +84,6 @@ function pullTrigger(){
   const gun = document.getElementById("gun");
   const result = document.getElementById("result");
   const btn = document.getElementById("triggerBtn");
-  const bangSound = document.getElementById("bangSound");
-  const clickSound = document.getElementById("clickSound");
 
   result.innerText = "";
   btn.disabled = true;
@@ -94,17 +91,24 @@ function pullTrigger(){
   gun.classList.add("spin");
 
   setTimeout(()=>{
+
     let shot = Math.floor(Math.random()*6) + 1;
 
     if(shot === 1){
       result.innerText = "💥 BANG! Bạn đã trúng đạn!";
       result.style.color = "red";
-      bangSound.play();
+
+      bangSound.currentTime = 0;
+      bangSound.play().catch(()=>{});
+
       document.body.classList.add("flash");
+
     }else{
       result.innerText = "😮‍💨 Click... Bạn sống.";
       result.style.color = "lightgreen";
-      clickSound.play();
+
+      clickSound.currentTime = 0;
+      clickSound.play().catch(()=>{});
     }
 
     setTimeout(()=>{
