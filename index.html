@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Russian Roulette Simulator</title>
+<title>Russian Roulette</title>
 
 <style>
 body{
   margin:0;
   background:#111;
   color:white;
-  font-family:Arial, sans-serif;
+  font-family:Arial;
   text-align:center;
   transition:0.2s;
 }
@@ -39,18 +39,10 @@ button{
   color:white;
 }
 
-button:disabled{
-  background:gray;
-}
-
 .result{
   font-size:30px;
   margin-top:30px;
   height:40px;
-}
-
-.flash{
-  background:#550000 !important;
 }
 </style>
 </head>
@@ -67,17 +59,51 @@ button:disabled{
 <script>
 
 let isPlaying = false;
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-// Tạo audio bằng JS để tránh lỗi
-const bangSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_5a0a6db3df.mp3?filename=gunshot-14063.mp3");
-const clickSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_9b1b8d89a0.mp3?filename=gun-cock-14065.mp3");
+function playClick(){
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
 
-bangSound.preload = "auto";
-clickSound.preload = "auto";
+  osc.type = "square";
+  osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+
+  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.1);
+}
+
+function playBang(){
+  const bufferSize = audioCtx.sampleRate * 0.3;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = buffer;
+
+  const gain = audioCtx.createGain();
+  gain.gain.setValueAtTime(1, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+  noise.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  noise.start();
+}
 
 document.getElementById("triggerBtn").addEventListener("click", pullTrigger);
 
 function pullTrigger(){
+
   if(isPlaying) return;
   isPlaying = true;
 
@@ -85,9 +111,8 @@ function pullTrigger(){
   const result = document.getElementById("result");
   const btn = document.getElementById("triggerBtn");
 
-  result.innerText = "";
   btn.disabled = true;
-
+  result.innerText = "";
   gun.classList.add("spin");
 
   setTimeout(()=>{
@@ -95,31 +120,28 @@ function pullTrigger(){
     let shot = Math.floor(Math.random()*6) + 1;
 
     if(shot === 1){
-      result.innerText = "💥 BANG! Bạn đã trúng đạn!";
+
+      result.innerText = "💥 BANG!";
       result.style.color = "red";
+      document.body.style.background = "#550000";
+      playBang();
 
-      bangSound.currentTime = 0;
-      bangSound.play().catch(()=>{});
+    } else {
 
-      document.body.classList.add("flash");
-
-    }else{
-      result.innerText = "😮‍💨 Click... Bạn sống.";
+      result.innerText = "😮‍💨 Click...";
       result.style.color = "lightgreen";
-
-      clickSound.currentTime = 0;
-      clickSound.play().catch(()=>{});
+      playClick();
     }
 
     setTimeout(()=>{
+      document.body.style.background = "#111";
       result.innerText = "";
       gun.classList.remove("spin");
       btn.disabled = false;
-      document.body.classList.remove("flash");
       isPlaying = false;
     },2000);
 
-  },800);
+  },600);
 }
 
 </script>
